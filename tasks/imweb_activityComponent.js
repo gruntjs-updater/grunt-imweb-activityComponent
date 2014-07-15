@@ -47,10 +47,10 @@ module.exports = function (grunt) {
 		}
 
 		//修改雪碧图设置
-		grunt.file.write(options.spriteConfPath, grunt.file.read(options.spriteConfPath).replace(/\/[^/]*?zhongkao/g, '/'+conf.codeRootDir));
+		grunt.file.write(options.spriteConfPath, grunt.file.read(options.spriteConfPath).replace(new RegExp('/'+conf.oldCodeRootDir, "g"), '/'+conf.codeRootDir));
 
 		//修改Gruntfile.js
-		grunt.file.write(options.gruntConfPath, grunt.file.read(options.gruntConfPath).replace(/\/[^/]*?zhongkao/g, '/'+conf.codeRootDir));
+		grunt.file.write(options.gruntConfPath, grunt.file.read(options.gruntConfPath).replace(new RegExp('/'+conf.oldCodeRootDir, "g"), '/'+conf.codeRootDir));
 
 		//修改report的from值
 		options.fixFrom.push(desPath);
