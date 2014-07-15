@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "grunt": "~0.4.5",
-	"imweb-tpl-engine": "~0.0.1"
+	"imweb-tpl-engine": "~0.0.3"
   },
   "peerDependencies": {
     "grunt": "~0.4.5"

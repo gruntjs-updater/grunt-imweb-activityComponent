@@ -18,21 +18,28 @@ module.exports = function (grunt) {
 		var options = this.options({
 			conf: 'test/config.json',
 			srcPath: 'src',
-			desPath: 'des'
+			desPath: 'des',
+			spriteConfPath: 'proj-task/sprite/conf.json',
+			gruntConfPath: 'Gruntfile.js',
+			fixFrom: ['src/inline']
 		});
 		var te = require('imweb-tpl-engine');
 		var conf = grunt.file.readJSON(options.conf);
 		var desPath = options.desPath + '/' + conf.codeRootDir;
 
-		var fileObj = {
-			expand: true,
-			cwd: options.srcPath,
-			src: ['**'],
-			dest: desPath
+		if (this.target == 'before') {
+			var cfileObj = {
+				expand: true,
+				cwd: options.srcPath,
+				src: ['**'],
+				dest: desPath
+			}
+			grunt.config.set('copy.ac.files', [cfileObj]);
+			grunt.task.run(['copy:ac','imweb_activityComponent:after']);
+			return;
 		}
-		grunt.config.set('copy.ac.files', fileObj);
-		grunt.task.run('copy:ac');
 
+		//修改活动项目需要修改的文件
 		for (var i = 0, len = conf.modifyList.length; i < len; ++i) {
 			var srcpath = options.srcPath + '/' + conf.modifyList[i],
 				despath = desPath + '/' + conf.modifyList[i];
@@ -40,32 +47,20 @@ module.exports = function (grunt) {
 		}
 
 		//修改雪碧图设置
-//	  var spriteConfPath =
-		// Iterate over all specified file groups.
-		this.files.forEach(function (f) {
-			// Concat specified files.
-			var src = f.src.filter(function (filepath) {
-				// Warn on and remove invalid source files (if nonull was set).
-				if (!grunt.file.exists(filepath)) {
-					grunt.log.warn('Source file "' + filepath + '" not found.');
-					return false;
-				} else {
-					return true;
-				}
-			}).map(function (filepath) {
-				// Read file source.
-				return grunt.file.read(filepath);
-			}).join(grunt.util.normalizelf(options.separator));
+		grunt.file.write(options.spriteConfPath, grunt.file.read(options.spriteConfPath).replace(/\/[^/]*?zhongkao/g, '/'+conf.codeRootDir));
 
-			// Handle options.
-			src += options.punctuation;
+		//修改Gruntfile.js
+		grunt.file.write(options.gruntConfPath, grunt.file.read(options.gruntConfPath).replace(/\/[^/]*?zhongkao/g, '/'+conf.codeRootDir));
 
-			// Write the destination file.
-			grunt.file.write(f.dest, src);
-
-			// Print a success message.
-			grunt.log.writeln('File "' + f.dest + '" created.');
-		});
+		//修改report的from值
+		options.fixFrom.push(desPath);
+		for (var i = 0, len = options.fixFrom.length; i < len; ++i) {
+			grunt.file.recurse(options.fixFrom[i], function(abspath, rootdir, subdir, filename) {
+				//跳过img文件夹
+				if (subdir == 'img') return;
+				grunt.file.write(abspath, grunt.file.read(abspath).replace(new RegExp("from="+conf.report.oldFrom, "g"), 'from='+conf.report.from));
+			});
+		}
 	});
 
 };
