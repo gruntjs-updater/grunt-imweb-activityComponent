@@ -68,6 +68,7 @@ module.exports = function (grunt) {
 			console.log(spriteConfStr);
 			console.log("read conf file error!");
 		}
+		console.log("config the sprite conf file["+options.spriteConfPath+"] success!");
 
 		//修改report的from值
 		options.fixFrom.push(desPath);
@@ -78,5 +79,8 @@ module.exports = function (grunt) {
 				grunt.file.write(abspath, grunt.file.read(abspath).replace(/from=\d+/g, 'from='+conf.report.from));
 			});
 		}
+		console.log("change the report from value to "+conf.report.from+" in the files within ["+options.fixFrom.join(', ')+"] dirs success!");
+
+		console.log("build activity success! code dir is: "+desPath);
 	});
 };
