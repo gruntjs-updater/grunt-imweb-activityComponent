@@ -24,6 +24,7 @@ module.exports = function (grunt) {
 			fixFrom: ['src/inline']
 		});
 		var te = require('imweb-tpl-engine');
+		var fs = require('fs');
 		var conf = grunt.file.readJSON(options.conf);
 		var desPath = options.desPath + '/' + conf.codeRootDir;
 
@@ -35,7 +36,8 @@ module.exports = function (grunt) {
 				dest: desPath
 			}
 			grunt.config.set('copy.ac.files', [cfileObj]);
-			grunt.task.run(['copy:ac','imweb_activityComponent:after']);
+			grunt.config.set('clean.ac', [desPath]);
+			grunt.task.run(['clean:ac', 'copy:ac','imweb_activityComponent:after']);
 			return;
 		}
 
@@ -47,10 +49,25 @@ module.exports = function (grunt) {
 		}
 
 		//修改雪碧图设置
-		grunt.file.write(options.spriteConfPath, grunt.file.read(options.spriteConfPath).replace(new RegExp('/'+conf.oldCodeRootDir, "g"), '/'+conf.codeRootDir));
+		try{
+			var spriteConfStr=fs.readFileSync(options.spriteConfPath,{encoding:"utf8"}), spriterConf;
 
-		//修改Gruntfile.js
-		grunt.file.write(options.gruntConfPath, grunt.file.read(options.gruntConfPath).replace(new RegExp('/'+conf.oldCodeRootDir, "g"), '/'+conf.codeRootDir));
+			if(spriteConfStr){
+				var stripJson=require("strip-json-comments");
+				var beautify = require('js-beautify');
+				spriteConfStr=stripJson(spriteConfStr);
+				spriterConf=JSON.parse(spriteConfStr);
+				spriterConf.input.cssSource.push('dist/activity/'+conf.codeRootDir+'/css/*.css');
+				spriterConf.output.cssDist.push('dist/activity/'+conf.codeRootDir+'/css');
+				grunt.file.write(options.spriteConfPath, beautify(JSON.stringify(spriterConf), {
+					"jslint_happy": true
+				}));
+			}
+		}catch(ex){
+			console.log(ex);
+			console.log(spriteConfStr);
+			console.log("read conf file error!");
+		}
 
 		//修改report的from值
 		options.fixFrom.push(desPath);
@@ -62,5 +79,4 @@ module.exports = function (grunt) {
 			});
 		}
 	});
-
 };
