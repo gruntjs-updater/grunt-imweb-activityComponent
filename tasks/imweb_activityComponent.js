@@ -75,7 +75,7 @@ module.exports = function (grunt) {
 			grunt.file.recurse(options.fixFrom[i], function(abspath, rootdir, subdir, filename) {
 				//跳过img文件夹
 				if (subdir == 'img') return;
-				grunt.file.write(abspath, grunt.file.read(abspath).replace(new RegExp("from="+conf.report.oldFrom, "g"), 'from='+conf.report.from));
+				grunt.file.write(abspath, grunt.file.read(abspath).replace(/from=\d+/g, 'from='+conf.report.from));
 			});
 		}
 	});

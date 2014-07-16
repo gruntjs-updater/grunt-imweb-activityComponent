@@ -1,7 +1,7 @@
 {
   "name": "grunt-imweb-activitycomponent",
   "description": "A grunt plugin for activity component",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "homepage": "https://github.com/longyiyiyu/grunt-imweb-activityComponent.git",
   "author": {
     "name": "lqlongli",
